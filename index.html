@@ -30,6 +30,31 @@
             font-weight: bold;
             margin-top: 20px;
         }
+        #leaderboard {
+            margin-top: 40px;
+            width: 80%;
+            max-width: 400px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #leaderboard h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.5em;
+        }
+        #leaderboard ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #leaderboard ul li {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        #leaderboard ul li:last-child {
+            border-bottom: none;
+        }
         @keyframes gradientAnimation {
             0% { background-position: 0% 0%; }
             50% { background-position: 100% 100%; }
@@ -43,13 +68,46 @@
     <img src="https://i.imgur.com/U0V1nZQ.png" id="cat" alt="Popcat">
     <div id="counter">0</div>
 
+    <div id="leaderboard">
+        <h2>Bảng Xếp Hạng</h2>
+        <ul id="leaderboardList"></ul>
+    </div>
+
     <audio id="popSound" src="https://www.soundjay.com/button/beep-07.mp3"></audio>
 
     <script>
-        let counter = 0;
+        let counter = parseInt(localStorage.getItem('popCount')) || 0;
         const cat = document.getElementById('cat');
         const counterDisplay = document.getElementById('counter');
         const popSound = document.getElementById('popSound');
+        const leaderboardList = document.getElementById('leaderboardList');
+
+        // Update counter display
+        counterDisplay.textContent = counter;
+
+        // Function to update leaderboard
+        function updateLeaderboard() {
+            const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+            leaderboardList.innerHTML = '';
+            leaderboard
+                .sort((a, b) => b.count - a.count) // Sort by highest count
+                .forEach((entry, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = `${index + 1}. ${entry.name}: ${entry.count}`;
+                    leaderboardList.appendChild(li);
+                });
+        }
+
+        // Save current user to leaderboard
+        function saveToLeaderboard() {
+            const userName = prompt("Nhập tên của bạn:");
+            if (userName) {
+                const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+                leaderboard.push({ name: userName, count: counter });
+                localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+                updateLeaderboard();
+            }
+        }
 
         cat.addEventListener('click', () => {
             counter++;
@@ -59,12 +117,21 @@
             popSound.currentTime = 0;
             popSound.play();
 
+            // Save counter to localStorage
+            localStorage.setItem('popCount', counter);
+
             // Animate cat image
             cat.src = "https://i.imgur.com/U0V1nZQ.png"; // Open mouth
             setTimeout(() => {
                 cat.src = "https://i.imgur.com/QpGbLrZ.png"; // Close mouth
             }, 150);
         });
+
+        // Ask user to save to leaderboard on load
+        window.addEventListener('beforeunload', saveToLeaderboard);
+
+        // Update leaderboard on page load
+        updateLeaderboard();
     </script>
 
 </body>
