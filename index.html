@@ -3,92 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đồng Hồ Kim</title>
+    <title>Đếm Số Lật</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
         body {
+            font-family: 'Arial', sans-serif;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            margin: 0;
+            color: #000000;
+            text-align: center;
+            background: linear-gradient(45deg, #FF9A9E, #FAD0C4, #FFDEE9, #B5FFFC);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
         }
-        .clock {
-            position: relative;
-            width: 200px;
-            height: 200px;
-            border: 8px solid #333;
-            border-radius: 50%;
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        #flipCounter {
+            font-size: 3em;
+            font-weight: bold;
+            padding: 20px;
+            border: 2px solid #000000;
+            border-radius: 10px;
+            background-color: #FFF;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            user-select: none;
+            cursor: pointer;
             display: flex;
-            align-items: center;
             justify-content: center;
-            background: white;
+            align-items: center;
+            position: relative;
+            width: 120px;
+            height: 80px;
+            perspective: 1000px;
         }
-        .clock .hand {
+        .flip {
             position: absolute;
-            width: 50%;
-            height: 4px;
-            background-color: black;
-            transform-origin: 100%;
-            transform: rotate(90deg);
-            transition: transform 0.05s ease-in-out;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            transform-style: preserve-3d;
+            transform-origin: bottom;
+            animation: flipAnimation 0.5s ease-in-out;
         }
-        .clock .hour {
-            height: 6px;
-            background-color: #333;
-            width: 35%;
-        }
-        .clock .minute {
-            height: 4px;
-            background-color: #555;
-            width: 45%;
-        }
-        .clock .second {
-            height: 2px;
-            background-color: red;
-            width: 50%;
-        }
-        .center-point {
+        .flipFront {
+            background-color: #FFF;
+            color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             position: absolute;
-            width: 12px;
-            height: 12px;
-            background-color: #333;
-            border-radius: 50%;
-            z-index: 10;
+            backface-visibility: hidden;
+            width: 100%;
+            height: 100%;
+            transform: rotateX(0deg);
+        }
+        .flipBack {
+            background-color: #FFF;
+            color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            backface-visibility: hidden;
+            width: 100%;
+            height: 100%;
+            transform: rotateX(180deg);
+        }
+        @keyframes flipAnimation {
+            0% { transform: rotateX(0deg); }
+            100% { transform: rotateX(-180deg); }
+        }
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 0%; }
+            50% { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
         }
     </style>
 </head>
 <body>
-    <div class="clock">
-        <div class="hand hour" id="hourHand"></div>
-        <div class="hand minute" id="minuteHand"></div>
-        <div class="hand second" id="secondHand"></div>
-        <div class="center-point"></div>
+
+    <h1>Đếm Số Lật</h1>
+    <div id="flipCounter" onclick="incrementCounter()">
+        <div class="flip">
+            <div class="flipFront" id="flipFront">0</div>
+            <div class="flipBack" id="flipBack"></div>
+        </div>
     </div>
 
     <script>
-        function updateClock() {
-            const now = new Date();
-            const seconds = now.getSeconds();
-            const minutes = now.getMinutes();
-            const hours = now.getHours();
+        let counter = 0;
 
-            const secondDegree = ((seconds / 60) * 360) + 90;
-            const minuteDegree = ((minutes / 60) * 360) + ((seconds / 60) * 6) + 90;
-            const hourDegree = ((hours % 12) / 12 * 360) + ((minutes / 60) * 30) + 90;
-
-            document.getElementById("secondHand").style.transform = `rotate(${secondDegree}deg)`;
-            document.getElementById("minuteHand").style.transform = `rotate(${minuteDegree}deg)`;
-            document.getElementById("hourHand").style.transform = `rotate(${hourDegree}deg)`;
+        function incrementCounter() {
+            counter++;
+            const flipFront = document.getElementById('flipFront');
+            const flipBack = document.getElementById('flipBack');
+            
+            flipBack.innerText = counter;
+            flipFront.style.animation = 'flipAnimation 0.5s ease-in-out';
+            flipBack.style.animation = 'flipAnimation 0.5s ease-in-out';
+            
+            setTimeout(() => {
+                flipFront.innerText = counter;
+                flipFront.style.animation = '';
+                flipBack.style.animation = '';
+            }, 500);
         }
-
-        setInterval(updateClock, 1000);
-        updateClock(); // Cập nhật đồng hồ ngay khi tải trang
     </script>
+
 </body>
 </html>
